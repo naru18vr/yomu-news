@@ -8,11 +8,17 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
+  ogType?: 'website' | 'article';
+  publishedTime?: Date;
+  section?: string;
 }
 
 const {
   title = '読むニュース',
   description = '今日の重大ニュースを、エッセイと物語で読む。',
+  ogType = 'website',
+  publishedTime,
+  section,
 } = Astro.props;
 const pageTitle = title === '読むニュース' ? title : `${title} | 読むニュース`;
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
@@ -29,10 +35,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
     <link rel="alternate" type="application/rss+xml" title="読むニュース RSS" href={toUrl('rss.xml')} />
     <link rel="canonical" href={canonical} />
     <meta property="og:site_name" content="読むニュース" />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
+    {publishedTime && <meta property="article:published_time" content={publishedTime.toISOString()} />}
+    {section && <meta property="article:section" content={section} />}
     <meta name="twitter:card" content="summary" />
     <title>{pageTitle}</title>
   </head>
