@@ -11,7 +11,7 @@ const { work } = Astro.props;
 const { data } = work;
 ---
 
-<BaseLayout title={data.title} description={data.description}>
+<BaseLayout title={data.title} description={data.description} ogType="article" publishedTime={data.date} section={data.topics[0]}>
   <article class="article-page">
     <a class="back-link" href={toUrl(`articles/${data.articleSlug}/`)}>← 朝刊へ戻る</a>
     <header class="article-page__header">
@@ -29,6 +29,9 @@ const { data } = work;
       </div>}
     </header>
     <div class="prose"><slot /></div>
-    <p class="article-page__calendar-link"><a class="button button--secondary" href={toUrl(`articles/${data.articleSlug}/`)}>ニュース超要約へ戻る</a></p>
+    <section class="work-source">
+      <p>この作品は朝刊に掲載されました。</p>
+      <a class="button button--secondary" href={toUrl(`articles/${data.articleSlug}/`)}>朝刊を最初から読む</a>
+    </section>
   </article>
 </BaseLayout>
