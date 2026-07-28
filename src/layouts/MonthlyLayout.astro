@@ -1,0 +1,22 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import MonthlyBadge from '../components/MonthlyBadge.astro';
+import { monthlyDisplayTitle, monthlyLabel } from '../lib/monthly';
+import { toUrl } from '../lib/paths';
+interface Props { issue: CollectionEntry<'monthly'>; previous?: CollectionEntry<'monthly'>; next?: CollectionEntry<'monthly'> }
+const { issue, previous, next } = Astro.props;
+const { data } = issue;
+---
+<BaseLayout title={`${monthlyDisplayTitle(data)}｜${monthlyLabel(data)}`} description={data.description} ogType="article" publishedTime={data.date} section="月刊">
+  <article class="monthly-page">
+    <a class="back-link" href={toUrl('monthly/')}>← 月間まとめへ戻る</a>
+    <header class="monthly-page__header"><MonthlyBadge /><h1>{monthlyDisplayTitle(data)}</h1><p>{monthlyLabel(data)}・約{data.readingTime}分</p><div class="tag-list">{data.topicSlugs.map((slug, i) => <a href={toUrl(`topics/${slug}/`)}>{data.topics[i] ?? slug}</a>)}</div><p class="monthly-page__description">{data.description}</p></header>
+    <div class="prose monthly-prose"><slot /></div>
+    {data.sources.length > 0 && <section class="sources"><h2>出典</h2><ul>{data.sources.map((source) => <li><a href={source.url} target="_blank" rel="noreferrer">{source.publisher}「{source.title}」</a><span>（{source.publishedAt}）</span></li>)}</ul></section>}
+    <nav class="article-navigation" aria-label="月刊号の移動">
+      {previous ? <a href={toUrl(`monthly/${previous.slug}/`)}><small>← 前月号</small><span>{monthlyDisplayTitle(previous.data)}</span></a> : <span />}
+      {next ? <a class="article-navigation__next" href={toUrl(`monthly/${next.slug}/`)}><small>翌月号 →</small><span>{monthlyDisplayTitle(next.data)}</span></a> : <span />}
+    </nav>
+  </article>
+</BaseLayout>
