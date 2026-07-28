@@ -1,81 +1,71 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ArticleCard from '../components/ArticleCard.astro';
-import Calendar from '../components/Calendar.astro';
+import EditionBadge from '../components/EditionBadge.astro';
 import { getNews } from '../lib/news';
 import { getWorks } from '../lib/works';
-import { contentTypeLabel, formatDay } from '../lib/format';
+import { articleDisplayTitle, contentTypeLabel, formatDay } from '../lib/format';
 import { toUrl } from '../lib/paths';
 
 const articles = await getNews();
 const works = await getWorks();
 const latestMorning = articles.find((article) => article.data.edition === 'morning');
-const latestEvening = articles.find((article) => article.data.edition === 'evening');
-const today = articles[0]?.data.day;
-const todayWorks = works.filter((work) => work.data.day === today);
-const todayEssay = todayWorks.find((work) => work.data.type === 'essay');
-const todayShortShort = todayWorks.find((work) => work.data.type === 'short-short');
-const recent = articles.slice(0, 5);
+const todayEvening = latestMorning
+  ? articles.find((article) => article.data.day === latestMorning.data.day && article.data.edition === 'evening')
+  : undefined;
+const morningWorks = latestMorning
+  ? works.filter((work) => work.data.articleSlug === latestMorning.slug).sort((a, b) => (a.data.type === 'essay' ? -1 : 1) - (b.data.type === 'essay' ? -1 : 1))
+  : [];
+const recent = articles.filter((article) => article.slug !== latestMorning?.slug && article.slug !== todayEvening?.slug).slice(0, 4);
 ---
 
 <BaseLayout>
   <section class="home-hero">
-    <p class="eyebrow">短い文芸誌のように、ニュースを読む</p>
+    <p class="eyebrow">読むニュース</p>
     <h1 class="lede">今日の重大ニュースを、<br />エッセイと物語で読む。</h1>
-    <p class="intro">毎日数分。事実を確かめた要約と、その日を少し考えるための読みものを届けます。</p>
+    <p class="intro">毎日数分。確かめた事実と、その日を考える読み物を届けます。</p>
   </section>
 
-  {todayEssay && <section aria-labelledby="today-reading-heading">
-    <div class="section-heading">
-      <div><p class="eyebrow">{today ? formatDay(today) : 'TODAY'}</p><h2 id="today-reading-heading">今日の読み物</h2></div>
-    </div>
-    <article class="work-card work-card--essay">
-      <p class="work-card__kind">{contentTypeLabel.essay}</p>
-      <h3><a href={toUrl(`works/${todayEssay.slug}/`)}>{todayEssay.data.title}</a></h3>
-      <p>{todayEssay.data.description}</p>
-      <div class="hashtag-list">{todayEssay.data.hashtags.slice(0, 3).map((tag) => <a href={toUrl(`tags/${tag.slug}/`)}>#{tag.label}</a>)}</div>
-      <a class="text-link" href={toUrl(`works/${todayEssay.slug}/`)}>エッセイを読む →</a>
+  {latestMorning && <section class="today-main" aria-labelledby="today-morning-heading">
+    <p class="eyebrow">今日の記事</p>
+    <article class="today-main__card">
+      <div class="article-card__meta">
+        <time datetime={latestMorning.data.day}>{formatDay(latestMorning.data.day)}</time>
+        <EditionBadge edition="morning" />
+        <span>約{latestMorning.data.readingTime}分</span>
+      </div>
+      <h2 id="today-morning-heading"><a href={toUrl(`articles/${latestMorning.slug}/`)}>{articleDisplayTitle(latestMorning.data)}</a></h2>
+      <p>{latestMorning.data.description}</p>
+      <div class="tag-list" aria-label="ジャンル">
+        {latestMorning.data.topicSlugs.map((slug, index) => <a href={toUrl(`topics/${slug}/`)}>{latestMorning.data.topics[index] ?? slug}</a>)}
+      </div>
+      <a class="button today-main__button" href={toUrl(`articles/${latestMorning.slug}/`)}>今日の朝刊を読む</a>
+    </article>
+    {morningWorks.length > 1 && <nav class="work-shortcuts" aria-label="朝刊の作品を選んで読む">
+      {morningWorks.map((work) => <a href={toUrl(`works/${work.slug}/`)}>{contentTypeLabel[work.data.type]}だけ読む</a>)}
+    </nav>}
+  </section>}
+
+  {todayEvening && <section class="today-evening" aria-labelledby="today-evening-heading">
+    <div class="section-heading"><div><p class="eyebrow">今日の続報</p><h2 id="today-evening-heading">今日の夕刊</h2></div></div>
+    <article class="today-evening__card">
+      <div class="article-card__meta"><EditionBadge edition="evening" /><span>約{todayEvening.data.readingTime}分</span></div>
+      <h3><a href={toUrl(`articles/${todayEvening.slug}/`)}>{articleDisplayTitle(todayEvening.data)}</a></h3>
+      <p>{todayEvening.data.description}</p>
+      <a class="text-link" href={toUrl(`articles/${todayEvening.slug}/`)}>夕刊を読む →</a>
     </article>
   </section>}
 
-  {todayShortShort && <section aria-labelledby="today-short-short-heading">
-    <div class="section-heading">
-      <div><p class="eyebrow">TODAY'S SHORT SHORT</p><h2 id="today-short-short-heading">今日のショートショート</h2></div>
-    </div>
-    <article class="work-card work-card--short-short">
-      <p class="work-card__kind">{contentTypeLabel['short-short']}</p>
-      <h3><a href={toUrl(`works/${todayShortShort.slug}/`)}>{todayShortShort.data.title}</a></h3>
-      <p>{todayShortShort.data.description}</p>
-      <div class="hashtag-list">{todayShortShort.data.hashtags.slice(0, 3).map((tag) => <a href={toUrl(`tags/${tag.slug}/`)}>#{tag.label}</a>)}</div>
-      <a class="text-link" href={toUrl(`works/${todayShortShort.slug}/`)}>ショートショートを読む →</a>
-    </article>
-  </section>}
-
-  <section aria-labelledby="edition-heading">
-    <div class="section-heading">
-      <div><p class="eyebrow">LATEST EDITIONS</p><h2 id="edition-heading">最新の朝刊・夕刊</h2></div>
-    </div>
-    <div class="article-list">
-      {latestMorning && <ArticleCard article={latestMorning} compact />}
-      {latestEvening && <ArticleCard article={latestEvening} compact />}
-    </div>
-  </section>
-
-  <div class="quick-links" aria-label="記事の探し方">
-    <a class="quick-link" href={toUrl('calendar/')}><strong>カレンダーから読む</strong><span>日にちを選んで朝刊・夕刊へ</span></a>
-    <a class="quick-link" href={toUrl('topics/')}><strong>ジャンルから読む</strong><span>気になるテーマの記事へ</span></a>
-    <a class="quick-link quick-link--wide" href={toUrl('tags/')}><strong>タグから探す</strong><span>#原油 #中東 #日本銀行 など、気になる言葉から</span></a>
-  </div>
-
-  <Calendar articles={articles} />
+  <nav class="quick-links" aria-label="記事を探す">
+    <a class="quick-link" href={toUrl('calendar/')}><strong>カレンダーから読む</strong><span>日付を選んで朝刊・夕刊へ</span></a>
+    <a class="quick-link" href={toUrl('search/')}><strong>記事を探す</strong><span>ジャンル・キーワード・日付から</span></a>
+  </nav>
 
   <section aria-labelledby="recent-heading">
     <div class="section-heading">
-      <div><p class="eyebrow">バックナンバー</p><h2 id="recent-heading">最近の記事</h2></div>
+      <div><p class="eyebrow">これまでの記事</p><h2 id="recent-heading">最近の記事</h2></div>
       <a class="text-link" href={toUrl('archive/')}>すべて見る →</a>
     </div>
-    <div class="article-list">
-      {recent.map((article) => <ArticleCard article={article} compact />)}
-    </div>
+    <div class="article-list">{recent.map((article) => <ArticleCard article={article} compact />)}</div>
   </section>
 </BaseLayout>
