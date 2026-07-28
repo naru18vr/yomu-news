@@ -3,17 +3,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ArticleCard from '../components/ArticleCard.astro';
 import Calendar from '../components/Calendar.astro';
 import { getNews } from '../lib/news';
+import { getWorks } from '../lib/works';
 import { contentTypeLabel, formatDay } from '../lib/format';
 import { toUrl } from '../lib/paths';
 
 const articles = await getNews();
+const works = await getWorks();
 const latestMorning = articles.find((article) => article.data.edition === 'morning');
 const latestEvening = articles.find((article) => article.data.edition === 'evening');
 const today = articles[0]?.data.day;
-const todayArticles = articles.filter((article) => article.data.day === today);
-const todayEssay = todayArticles.find((article) => article.data.contentTypes.includes('essay'));
-const todayShortShort = todayArticles.find((article) => article.data.contentTypes.includes('short-short'));
-const workTitle = (article: typeof articles[number], type: 'essay' | 'short-short') => article.data.readingTitles[article.data.contentTypes.indexOf(type)] ?? article.data.title;
+const todayWorks = works.filter((work) => work.data.day === today);
+const todayEssay = todayWorks.find((work) => work.data.type === 'essay');
+const todayShortShort = todayWorks.find((work) => work.data.type === 'short-short');
 const recent = articles.slice(0, 5);
 ---
 
@@ -30,10 +31,10 @@ const recent = articles.slice(0, 5);
     </div>
     <article class="work-card work-card--essay">
       <p class="work-card__kind">{contentTypeLabel.essay}</p>
-      <h3><a href={toUrl(`articles/${todayEssay.slug}/`)}>{workTitle(todayEssay, 'essay')}</a></h3>
+      <h3><a href={toUrl(`works/${todayEssay.slug}/`)}>{todayEssay.data.title}</a></h3>
       <p>{todayEssay.data.description}</p>
       <div class="hashtag-list">{todayEssay.data.hashtags.slice(0, 3).map((tag) => <a href={toUrl(`tags/${tag.slug}/`)}>#{tag.label}</a>)}</div>
-      <a class="text-link" href={toUrl(`articles/${todayEssay.slug}/`)}>エッセイを読む →</a>
+      <a class="text-link" href={toUrl(`works/${todayEssay.slug}/`)}>エッセイを読む →</a>
     </article>
   </section>}
 
@@ -43,10 +44,10 @@ const recent = articles.slice(0, 5);
     </div>
     <article class="work-card work-card--short-short">
       <p class="work-card__kind">{contentTypeLabel['short-short']}</p>
-      <h3><a href={toUrl(`articles/${todayShortShort.slug}/`)}>{workTitle(todayShortShort, 'short-short')}</a></h3>
+      <h3><a href={toUrl(`works/${todayShortShort.slug}/`)}>{todayShortShort.data.title}</a></h3>
       <p>{todayShortShort.data.description}</p>
       <div class="hashtag-list">{todayShortShort.data.hashtags.slice(0, 3).map((tag) => <a href={toUrl(`tags/${tag.slug}/`)}>#{tag.label}</a>)}</div>
-      <a class="text-link" href={toUrl(`articles/${todayShortShort.slug}/`)}>ショートショートを読む →</a>
+      <a class="text-link" href={toUrl(`works/${todayShortShort.slug}/`)}>ショートショートを読む →</a>
     </article>
   </section>}
 
