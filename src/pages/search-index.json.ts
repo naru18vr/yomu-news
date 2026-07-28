@@ -5,7 +5,7 @@ import { toUrl } from '../lib/paths';
 export const GET: APIRoute = async () => {
   const articles = await getNews();
   return new Response(JSON.stringify(articles.map((article) => ({
-    title: article.data.title,
+    title: article.data.displayTitle || article.data.title,
     date: article.data.day,
     edition: article.data.edition,
     description: article.data.description,
