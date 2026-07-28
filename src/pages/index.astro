@@ -4,7 +4,7 @@ import ArticleCard from '../components/ArticleCard.astro';
 import EditionBadge from '../components/EditionBadge.astro';
 import { getNews } from '../lib/news';
 import { getWorks } from '../lib/works';
-import { articleDisplayTitle, contentTypeLabel, formatDay } from '../lib/format';
+import { articleDisplayTitle, formatDay } from '../lib/format';
 import { tokyoDay } from '../lib/dates';
 import { toUrl } from '../lib/paths';
 
@@ -21,6 +21,8 @@ const todayEvening = isTodayMorning
 const morningWorks = latestMorning
   ? works.filter((work) => work.data.articleSlug === latestMorning.slug).sort((a, b) => (a.data.type === 'essay' ? -1 : 1) - (b.data.type === 'essay' ? -1 : 1))
   : [];
+const todayEssay = morningWorks.find((work) => work.data.type === 'essay');
+const todayShortShort = morningWorks.find((work) => work.data.type === 'short-short');
 const recent = articles.filter((article) => article.slug !== latestMorning?.slug && article.slug !== todayEvening?.slug).slice(0, 4);
 ---
 
@@ -31,24 +33,29 @@ const recent = articles.filter((article) => article.slug !== latestMorning?.slug
     <p class="intro">毎日数分。確かめた事実と、その日を考える読み物を届けます。</p>
   </section>
 
-  {latestMorning && <section class="today-main" aria-labelledby="today-morning-heading">
+  {latestMorning && <section class="today-main" aria-label={primaryLabel}>
     <p class="eyebrow">{primaryLabel}</p>
-    <article class="today-main__card">
-      <div class="article-card__meta">
-        <time datetime={latestMorning.data.day}>{formatDay(latestMorning.data.day)}</time>
-        <EditionBadge edition="morning" />
-        <span>約{latestMorning.data.readingTime}分</span>
-      </div>
-      <h2 id="today-morning-heading"><a href={toUrl(`articles/${latestMorning.slug}/`)}>{articleDisplayTitle(latestMorning.data)}</a></h2>
+    {morningWorks.length > 0 ? <div class="today-work-grid">
+      {todayEssay && <article class="today-work-card today-work-card--essay">
+        <div class="article-card__meta"><time datetime={latestMorning.data.day}>{formatDay(latestMorning.data.day)}</time><EditionBadge edition="morning" /><span>約{todayEssay.data.readingTime}分</span></div>
+        <p class="today-work-card__label">今日の読み物</p>
+        <h2><a href={toUrl(`works/${todayEssay.slug}/`)}>{todayEssay.data.title}</a></h2>
+        <p>{todayEssay.data.description}</p>
+        <a class="button" href={toUrl(`works/${todayEssay.slug}/`)}>今日の読み物を読む</a>
+      </article>}
+      {todayShortShort && <article class="today-work-card today-work-card--short-short">
+        <div class="article-card__meta"><time datetime={latestMorning.data.day}>{formatDay(latestMorning.data.day)}</time><EditionBadge edition="morning" /><span>約{todayShortShort.data.readingTime}分</span></div>
+        <p class="today-work-card__label">ショートショート</p>
+        <h2><a href={toUrl(`works/${todayShortShort.slug}/`)}>{todayShortShort.data.title}</a></h2>
+        <p>{todayShortShort.data.description}</p>
+        <a class="button" href={toUrl(`works/${todayShortShort.slug}/`)}>ショートショートを読む</a>
+      </article>}
+    </div> : <article class="today-main__card">
+      <div class="article-card__meta"><time datetime={latestMorning.data.day}>{formatDay(latestMorning.data.day)}</time><EditionBadge edition="morning" /><span>約{latestMorning.data.readingTime}分</span></div>
+      <h2><a href={toUrl(`articles/${latestMorning.slug}/`)}>{articleDisplayTitle(latestMorning.data)}</a></h2>
       <p>{latestMorning.data.description}</p>
-      <div class="tag-list" aria-label="ジャンル">
-        {latestMorning.data.topicSlugs.map((slug, index) => <a href={toUrl(`topics/${slug}/`)}>{latestMorning.data.topics[index] ?? slug}</a>)}
-      </div>
       <a class="button today-main__button" href={toUrl(`articles/${latestMorning.slug}/`)}>{primaryButtonLabel}</a>
-    </article>
-    {morningWorks.length > 1 && <nav class="work-shortcuts" aria-label="朝刊の作品を選んで読む">
-      {morningWorks.map((work) => <a href={toUrl(`works/${work.slug}/`)}>{contentTypeLabel[work.data.type]}だけ読む</a>)}
-    </nav>}
+    </article>}
   </section>}
 
   {todayEvening && <section class="today-evening" aria-labelledby="today-evening-heading">
