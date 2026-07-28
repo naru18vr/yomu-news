@@ -24,27 +24,31 @@ const recent = articles.slice(0, 5);
     <p class="intro">毎日数分。事実を確かめた要約と、その日を少し考えるための読みものを届けます。</p>
   </section>
 
-  <section aria-labelledby="today-works-heading">
+  {todayEssay && <section aria-labelledby="today-reading-heading">
     <div class="section-heading">
-      <div><p class="eyebrow">{today ? formatDay(today) : 'TODAY'}</p><h2 id="today-works-heading">今日の読み物</h2></div>
+      <div><p class="eyebrow">{today ? formatDay(today) : 'TODAY'}</p><h2 id="today-reading-heading">今日の読み物</h2></div>
     </div>
-    <div class="work-grid">
-      {todayEssay && <article class="work-card work-card--essay">
-        <p class="work-card__kind">{contentTypeLabel.essay}</p>
-        <h3><a href={toUrl(`articles/${todayEssay.slug}/`)}>{workTitle(todayEssay, 'essay')}</a></h3>
-        <p>{todayEssay.data.description}</p>
-        <div class="hashtag-list">{todayEssay.data.hashtags.slice(0, 3).map((tag) => <a href={toUrl(`tags/${tag.slug}/`)}>#{tag.label}</a>)}</div>
-        <a class="text-link" href={toUrl(`articles/${todayEssay.slug}/`)}>エッセイを読む →</a>
-      </article>}
-      {todayShortShort && <article class="work-card work-card--short-short">
-        <p class="work-card__kind">{contentTypeLabel['short-short']}</p>
-        <h3><a href={toUrl(`articles/${todayShortShort.slug}/`)}>{workTitle(todayShortShort, 'short-short')}</a></h3>
-        <p>{todayShortShort.data.description}</p>
-        <div class="hashtag-list">{todayShortShort.data.hashtags.slice(0, 3).map((tag) => <a href={toUrl(`tags/${tag.slug}/`)}>#{tag.label}</a>)}</div>
-        <a class="text-link" href={toUrl(`articles/${todayShortShort.slug}/`)}>ショートショートを読む →</a>
-      </article>}
+    <article class="work-card work-card--essay">
+      <p class="work-card__kind">{contentTypeLabel.essay}</p>
+      <h3><a href={toUrl(`articles/${todayEssay.slug}/`)}>{workTitle(todayEssay, 'essay')}</a></h3>
+      <p>{todayEssay.data.description}</p>
+      <div class="hashtag-list">{todayEssay.data.hashtags.slice(0, 3).map((tag) => <a href={toUrl(`tags/${tag.slug}/`)}>#{tag.label}</a>)}</div>
+      <a class="text-link" href={toUrl(`articles/${todayEssay.slug}/`)}>エッセイを読む →</a>
+    </article>
+  </section>}
+
+  {todayShortShort && <section aria-labelledby="today-short-short-heading">
+    <div class="section-heading">
+      <div><p class="eyebrow">TODAY'S SHORT SHORT</p><h2 id="today-short-short-heading">今日のショートショート</h2></div>
     </div>
-  </section>
+    <article class="work-card work-card--short-short">
+      <p class="work-card__kind">{contentTypeLabel['short-short']}</p>
+      <h3><a href={toUrl(`articles/${todayShortShort.slug}/`)}>{workTitle(todayShortShort, 'short-short')}</a></h3>
+      <p>{todayShortShort.data.description}</p>
+      <div class="hashtag-list">{todayShortShort.data.hashtags.slice(0, 3).map((tag) => <a href={toUrl(`tags/${tag.slug}/`)}>#{tag.label}</a>)}</div>
+      <a class="text-link" href={toUrl(`articles/${todayShortShort.slug}/`)}>ショートショートを読む →</a>
+    </article>
+  </section>}
 
   <section aria-labelledby="edition-heading">
     <div class="section-heading">
