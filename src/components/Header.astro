@@ -1,5 +1,6 @@
 ---
 import { toUrl } from '../lib/paths';
+import FontControls from './FontControls.astro';
 
 const pathname = Astro.url.pathname;
 const links = [
@@ -20,6 +21,7 @@ const links = [
       {links.slice(1).map((link) => <a href={link.href} aria-current={pathname === link.href ? 'page' : undefined}>{link.label}</a>)}
     </nav>
     <button class="font-menu__trigger" type="button" aria-label="文字サイズを変更" aria-expanded="false" data-font-menu-trigger>Aa</button>
+    <FontControls />
   </div>
 </header>
 
