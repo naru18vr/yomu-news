@@ -19,4 +19,5 @@ const articles = await getNews();
       return <a class="topic-link" href={toUrl(`topics/${topic.slug}/`)}><strong>{topic.name}</strong><span>{count}本の記事</span></a>;
     })}
   </div>
+  <p class="page-action"><a class="button button--secondary" href={toUrl('tags/')}>ハッシュタグから探す</a></p>
 </BaseLayout>
