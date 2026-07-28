@@ -1,7 +1,6 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import FontControls from '../components/FontControls.astro';
 import { toUrl } from '../lib/paths';
 import '../styles/global.css';
 
@@ -48,6 +47,5 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
     <Header />
     <main id="main-content"><slot /></main>
     <Footer />
-    <FontControls />
   </body>
 </html>
