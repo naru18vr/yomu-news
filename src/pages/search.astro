@@ -2,7 +2,11 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { topics } from '../lib/taxonomy';
 import { contentTypeLabel } from '../lib/format';
+import { getNews } from '../lib/news';
+import { collectHashtags } from '../lib/hashtags';
 import { toUrl } from '../lib/paths';
+
+const hashtags = collectHashtags(await getNews());
 ---
 
 <BaseLayout title="検索" description="キーワード、ジャンル、日付、朝刊・夕刊から記事を探せます。">
@@ -15,6 +19,10 @@ import { toUrl } from '../lib/paths';
     <div class="form-field">
       <label for="keyword">キーワード</label>
       <input id="keyword" name="keyword" type="search" placeholder="例：選挙、宇宙、ことば" autocomplete="off" />
+    </div>
+    <div class="form-field">
+      <label for="tag">ハッシュタグ</label>
+      <select id="tag" name="tag"><option value="">すべてのタグ</option>{hashtags.map((tag) => <option value={tag.slug}>#{tag.label}</option>)}</select>
     </div>
     <div class="form-field">
       <label for="topic">ジャンル</label>
@@ -50,7 +58,7 @@ import { toUrl } from '../lib/paths';
   <noscript><p class="empty-state">検索にはJavaScriptを使用します。ジャンル一覧やアーカイブから記事を読むこともできます。</p></noscript>
 </BaseLayout>
 
-<script define:vars={{ indexUrl: toUrl('search-index.json') }}>
+<script define:vars={{ indexUrl: toUrl('search-index.json'), baseUrl: toUrl() }}>
   const form = document.querySelector('[data-search-form]');
   const results = document.querySelector('[data-search-results]');
   const status = document.querySelector('[data-search-status]');
@@ -72,19 +80,43 @@ import { toUrl } from '../lib/paths';
       results.innerHTML = '<p class="empty-state">条件に合う記事はありません。条件を変えるか、「すべてクリア」を試してください。</p>';
       return;
     }
-    results.innerHTML = found.map((item) => `<article class="article-card"><div class="article-card__meta"><time datetime="${item.date}">${displayDate(item.date)}</time><span class="edition-badge ${item.edition}"><span>${item.edition === 'morning' ? '朝' : '夕'}</span>${editionLabels[item.edition]}</span><span>${item.readingTime}分で読める</span></div><h2><a href="${item.url}">${escapeHtml(item.title)}</a></h2><p>${escapeHtml(item.description)}</p><div class="article-card__footer"><div class="tag-list">${item.topics.map((topic) => `<span>${escapeHtml(topic)}</span>`).join('')}</div><span class="content-type">${item.contentTypes.map((type) => typeLabels[type]).join('・')}</span></div><a class="text-link article-card__read" href="${item.url}">読む →</a></article>`).join('');
+    results.innerHTML = found.map((item) => `<article class="article-card"><div class="article-card__meta"><time datetime="${item.date}">${displayDate(item.date)}</time><span class="edition-badge ${item.edition}"><span>${item.edition === 'morning' ? '朝' : '夕'}</span>${editionLabels[item.edition]}</span><span>${item.readingTime}分で読める</span></div><h2><a href="${item.url}">${escapeHtml(item.title)}</a></h2><p>${escapeHtml(item.description)}</p><div class="article-card__footer"><div class="tag-list">${item.topics.map((topic) => `<span>${escapeHtml(topic)}</span>`).join('')}</div><span class="content-type">${item.contentTypes.map((type) => typeLabels[type]).join('・')}</span></div>${item.hashtags.length ? `<div class="hashtag-list">${item.hashtags.map((tag) => `<a href="${baseUrl}tags/${tag.slug}/">#${escapeHtml(tag.label)}</a>`).join('')}</div>` : ''}<a class="text-link article-card__read" href="${item.url}">読む →</a></article>`).join('');
+  }
+  function applyQuery() {
+    const query = new URLSearchParams(window.location.search);
+    ['keyword', 'tag', 'topic', 'contentType', 'start', 'end'].forEach((name) => {
+      const control = form.elements.namedItem(name);
+      if (control && query.has(name)) control.value = query.get(name);
+    });
+    const edition = query.get('edition');
+    if (edition) {
+      const radio = form.querySelector(`input[name="edition"][value="${edition}"]`);
+      if (radio) radio.checked = true;
+    }
+  }
+  function syncQuery() {
+    const query = new URLSearchParams();
+    const values = new FormData(form);
+    ['keyword', 'tag', 'topic', 'contentType', 'edition', 'start', 'end'].forEach((name) => {
+      const value = String(values.get(name) || '');
+      if (value) query.set(name, value);
+    });
+    const suffix = query.toString();
+    window.history.replaceState({}, '', `${window.location.pathname}${suffix ? `?${suffix}` : ''}`);
   }
   function search() {
     const values = new FormData(form);
     const keyword = String(values.get('keyword') || '').trim().toLocaleLowerCase('ja-JP');
+    const tag = String(values.get('tag') || '');
     const topic = String(values.get('topic') || '');
     const contentType = String(values.get('contentType') || '');
     const edition = String(values.get('edition') || '');
     const start = String(values.get('start') || '');
     const end = String(values.get('end') || '');
     const found = items.filter((item) => {
-      const searchable = [item.title, item.description, ...item.topics, ...item.readingTitles, ...item.keywords].join(' ').toLocaleLowerCase('ja-JP');
+      const searchable = [item.title, item.description, ...item.topics, ...item.readingTitles, ...item.hashtags.map((hashtag) => hashtag.label), ...item.keywords].join(' ').toLocaleLowerCase('ja-JP');
       return (!keyword || searchable.includes(keyword))
+        && (!tag || item.hashtags.some((hashtag) => hashtag.slug === tag))
         && (!topic || item.topicSlugs.includes(topic))
         && (!contentType || item.contentTypes.includes(contentType))
         && (!edition || item.edition === edition)
@@ -93,10 +125,10 @@ import { toUrl } from '../lib/paths';
     });
     render(found);
   }
-  form.addEventListener('submit', (event) => { event.preventDefault(); search(); });
-  clearButton.addEventListener('click', () => { form.reset(); search(); });
+  form.addEventListener('submit', (event) => { event.preventDefault(); syncQuery(); search(); });
+  clearButton.addEventListener('click', () => { form.reset(); syncQuery(); search(); });
   fetch(indexUrl)
     .then((response) => response.ok ? response.json() : Promise.reject(new Error('検索データを取得できませんでした。')))
-    .then((data) => { items = data; search(); })
+    .then((data) => { items = data; applyQuery(); search(); })
     .catch(() => { status.textContent = '検索データを読み込めませんでした。ページを再読み込みしてください。'; });
 </script>
