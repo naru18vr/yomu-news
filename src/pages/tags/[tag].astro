@@ -1,0 +1,28 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { getNews } from '../../lib/news';
+import { collectHashtags } from '../../lib/hashtags';
+import { toUrl } from '../../lib/paths';
+
+export const getStaticPaths = (async () => {
+  const hashtags = collectHashtags(await getNews());
+  return hashtags.map((tag) => ({ params: { tag: tag.slug }, props: { tag } }));
+}) satisfies GetStaticPaths;
+
+const { tag } = Astro.props;
+const articles = (await getNews()).filter((article) => article.data.hashtags.some((item) => item.slug === tag.slug));
+---
+
+<BaseLayout title={`#${tag.label}`} description={`#${tag.label} が付いた、読むニュースの記事一覧です。`}>
+  <header class="page-heading">
+    <p class="eyebrow">HASHTAG</p>
+    <h1>#{tag.label}</h1>
+    <p class="intro">{articles.length}本の記事があります。</p>
+  </header>
+  <div class="article-list">
+    {articles.map((article) => <ArticleCard article={article} />)}
+  </div>
+  <p class="page-action"><a class="button button--secondary" href={toUrl('tags/')}>タグ一覧へ戻る</a></p>
+</BaseLayout>
