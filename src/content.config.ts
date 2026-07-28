@@ -12,6 +12,10 @@ const news = defineCollection({
     topicSlugs: z.array(z.string()).min(1),
     contentTypes: z.array(z.enum(['essay', 'short-short', 'flash-fiction', 'dialogue', 'observation'])).min(1),
     readingTitles: z.array(z.string()).min(1),
+    hashtags: z.array(z.object({
+      label: z.string(),
+      slug: z.string().regex(/^[a-z0-9-]+$/),
+    })).default([]),
     keywords: z.array(z.string()).default([]),
     readingTime: z.number().int().positive(),
     featured: z.boolean().default(false),
