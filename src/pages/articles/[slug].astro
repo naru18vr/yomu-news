@@ -3,6 +3,7 @@ import type { GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 import ArticleLayout from '../../layouts/ArticleLayout.astro';
 import { getNews } from '../../lib/news';
+import { getWorks } from '../../lib/works';
 
 export const getStaticPaths = (async () => {
   const articles = await getCollection('news');
@@ -12,10 +13,12 @@ export const getStaticPaths = (async () => {
 const { article } = Astro.props;
 const { Content } = await article.render();
 const all = await getNews();
+const works = await getWorks();
 const index = all.findIndex((entry) => entry.slug === article.slug);
 const previous = all[index + 1];
 const next = all[index - 1];
 const sameDay = all.find((entry) => entry.data.day === article.data.day && entry.slug !== article.slug);
+const articleWorks = works.filter((work) => work.data.articleSlug === article.slug);
 ---
 
-<ArticleLayout {article} {previous} {next} {sameDay}><Content /></ArticleLayout>
+<ArticleLayout {article} {previous} {next} {sameDay} works={articleWorks}><Content /></ArticleLayout>
