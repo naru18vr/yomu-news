@@ -4,6 +4,7 @@ const news = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string(),
+    displayTitle: z.string().optional(),
     date: z.coerce.date(),
     day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     edition: z.enum(['morning', 'evening']),
