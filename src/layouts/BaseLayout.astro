@@ -1,0 +1,45 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import FontControls from '../components/FontControls.astro';
+import { toUrl } from '../lib/paths';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = '読むニュース',
+  description = '今日の重大ニュースを、エッセイと物語で読む。',
+} = Astro.props;
+const pageTitle = title === '読むニュース' ? title : `${title} | 読むニュース`;
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#fbfaf6" />
+    <link rel="icon" href={toUrl('favicon.svg')} type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title="読むニュース RSS" href={toUrl('rss.xml')} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:site_name" content="読むニュース" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <Header />
+    <main id="main-content"><slot /></main>
+    <Footer />
+    <FontControls />
+  </body>
+</html>

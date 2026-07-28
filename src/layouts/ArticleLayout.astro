@@ -1,0 +1,55 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import EditionBadge from '../components/EditionBadge.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { contentTypeLabel, formatDay } from '../lib/format';
+import { toUrl } from '../lib/paths';
+
+interface Props {
+  article: CollectionEntry<'news'>;
+  previous?: CollectionEntry<'news'>;
+  next?: CollectionEntry<'news'>;
+  sameDay?: CollectionEntry<'news'>;
+}
+const { article, previous, next, sameDay } = Astro.props;
+const { data } = article;
+---
+
+<BaseLayout title={data.title} description={data.description}>
+  <article class="article-page">
+    <a class="back-link" href={toUrl()}>← トップへ戻る</a>
+    <header class="article-page__header">
+      <div class="article-card__meta">
+        <time datetime={data.day}>{formatDay(data.day)}</time>
+        <EditionBadge edition={data.edition} />
+        <span>{data.readingTime}分で読める</span>
+      </div>
+      <h1>{data.title}</h1>
+      <div class="tag-list" aria-label="ジャンル">
+        {data.topicSlugs.map((slug, index) => <a href={toUrl(`topics/${slug}/`)}>{data.topics[index] ?? slug}</a>)}
+      </div>
+      <p class="article-page__types">{data.contentTypes.map((type) => contentTypeLabel[type]).join('・')}</p>
+    </header>
+    <div class="prose"><slot /></div>
+    <section class="sources" aria-labelledby="sources-heading">
+      <h2 id="sources-heading">出典</h2>
+      <ul>
+        {data.sources.map((source) => (
+          <li><a href={source.url} target="_blank" rel="noreferrer">{source.publisher}「{source.title}」</a><span>（{source.publishedAt}）</span></li>
+        ))}
+      </ul>
+    </section>
+    <nav class="article-navigation" aria-label="記事の移動">
+      {previous ? <a href={toUrl(`articles/${previous.slug}/`)}><small>← 前の記事</small><span>{previous.data.title}</span></a> : <span></span>}
+      {next ? <a class="article-navigation__next" href={toUrl(`articles/${next.slug}/`)}><small>次の記事 →</small><span>{next.data.title}</span></a> : <span></span>}
+    </nav>
+    {sameDay && (
+      <section class="same-day">
+        <p class="eyebrow">同じ日の記事</p>
+        <ArticleCard article={sameDay} compact />
+      </section>
+    )}
+    <p class="article-page__calendar-link"><a class="button button--secondary" href={toUrl(`dates/${data.day}/`)}>この日の記事一覧へ</a></p>
+  </article>
+</BaseLayout>

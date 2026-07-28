@@ -1,0 +1,13 @@
+---
+import { toUrl } from '../lib/paths';
+---
+
+<footer class="site-footer">
+  <p>読むニュース</p>
+  <p>ニュースを入口に、今日の読みものへ。</p>
+  <div class="site-footer__links">
+    <a href={toUrl('archive/')}>アーカイブ</a>
+    <a href={toUrl('rss.xml')}>RSS</a>
+    <a href={toUrl('about/')}>このサイトについて</a>
+  </div>
+</footer>

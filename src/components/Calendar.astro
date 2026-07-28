@@ -1,0 +1,90 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { articlesOnDay } from '../lib/news';
+import { toUrl } from '../lib/paths';
+
+interface Props { articles: CollectionEntry<'news'>[]; }
+const { articles } = Astro.props;
+const days = [...new Set(articles.map((article) => article.data.day))].sort().reverse();
+const dayIndex = Object.fromEntries(days.map((day) => [day, articlesOnDay(articles, day).map((article) => ({
+  title: article.data.title,
+  description: article.data.description,
+  edition: article.data.edition,
+  url: toUrl(`articles/${article.slug}/`),
+}))]));
+const initialDay = days[0] ?? '';
+---
+
+<section class="calendar" aria-labelledby="calendar-heading">
+  <div class="calendar__heading">
+    <div>
+      <p class="eyebrow">日付から読む</p>
+      <h2 id="calendar-heading">カレンダー</h2>
+    </div>
+    <a class="text-link" href={toUrl('calendar/')}>カレンダーを開く <span aria-hidden="true">→</span></a>
+  </div>
+  <div class="calendar__controls">
+    <button type="button" class="calendar__move" data-calendar-prev aria-label="前の月">←</button>
+    <p data-calendar-title aria-live="polite"></p>
+    <button type="button" class="calendar__move" data-calendar-next aria-label="次の月">→</button>
+  </div>
+  <div class="calendar__week" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div>
+  <div class="calendar__grid" data-calendar-grid aria-label="記事カレンダー"></div>
+  <p class="calendar__legend"><span><b class="dot dot--morning"></b>朝刊</span><span><b class="dot dot--evening"></b>夕刊</span><span>「朝」「夕」でも区別できます</span></p>
+  <div class="calendar__selected" data-calendar-selected aria-live="polite"></div>
+  <noscript>
+    <p>JavaScriptを有効にすると月を切り替えられます。記事のある日付は<a href={toUrl(`dates/${initialDay}/`)}>最新の日付ページ</a>から読めます。</p>
+  </noscript>
+</section>
+
+<script define:vars={{ dayIndex, initialDay }}>
+  const grid = document.querySelector('[data-calendar-grid]');
+  const title = document.querySelector('[data-calendar-title]');
+  const selected = document.querySelector('[data-calendar-selected]');
+  const previous = document.querySelector('[data-calendar-prev]');
+  const next = document.querySelector('[data-calendar-next]');
+  let selectedDay = initialDay;
+  const initial = initialDay ? new Date(`${initialDay}T00:00:00`) : new Date();
+  let visibleYear = initial.getFullYear();
+  let visibleMonth = initial.getMonth();
+
+  function renderSelected() {
+    const items = dayIndex[selectedDay] || [];
+    if (!items.length) {
+      selected.innerHTML = '<p>この日には記事がありません。</p>';
+      return;
+    }
+    const label = selectedDay.replace(/(\d{4})-(\d{2})-(\d{2})/, (_, y, m, d) => `${y}年${Number(m)}月${Number(d)}日`);
+    selected.innerHTML = `<p class="eyebrow">選択中：${label}</p>${items.map((item) => `<article class="calendar__item"><p>${item.edition === 'morning' ? '朝刊' : '夕刊'}</p><h3><a href="${item.url}">${item.title}</a></h3><p>${item.description}</p><a class="text-link" href="${item.url}">読む →</a></article>`).join('')}`;
+  }
+
+  function render() {
+    title.textContent = `${visibleYear}年${visibleMonth + 1}月`;
+    const first = new Date(visibleYear, visibleMonth, 1).getDay();
+    const last = new Date(visibleYear, visibleMonth + 1, 0).getDate();
+    const today = new Date();
+    const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    grid.innerHTML = '';
+    for (let blank = 0; blank < first; blank += 1) grid.insertAdjacentHTML('beforeend', '<span class="calendar__blank" aria-hidden="true"></span>');
+    for (let date = 1; date <= last; date += 1) {
+      const day = `${visibleYear}-${String(visibleMonth + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+      const editions = (dayIndex[day] || []).map((item) => item.edition);
+      const hasMorning = editions.includes('morning');
+      const hasEvening = editions.includes('evening');
+      const status = editions.length ? `、${hasMorning ? '朝刊あり' : ''}${hasMorning && hasEvening ? '、' : ''}${hasEvening ? '夕刊あり' : ''}` : '、記事なし';
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = `calendar__day${editions.length ? ' has-articles' : ''}${day === selectedDay ? ' is-selected' : ''}${day === todayKey ? ' is-today' : ''}`;
+      button.disabled = !editions.length;
+      button.setAttribute('aria-label', `${visibleMonth + 1}月${date}日${status}`);
+      button.innerHTML = `<span>${date}</span>${editions.length ? `<small>${hasMorning ? '朝' : ''}${hasEvening ? '夕' : ''}</small><i class="calendar__dots"><b class="dot dot--morning ${hasMorning ? '' : 'is-hidden'}"></b><b class="dot dot--evening ${hasEvening ? '' : 'is-hidden'}"></b></i>` : ''}`;
+      button.addEventListener('click', () => { selectedDay = day; render(); renderSelected(); });
+      grid.appendChild(button);
+    }
+  }
+
+  previous.addEventListener('click', () => { visibleMonth -= 1; if (visibleMonth < 0) { visibleMonth = 11; visibleYear -= 1; } render(); });
+  next.addEventListener('click', () => { visibleMonth += 1; if (visibleMonth > 11) { visibleMonth = 0; visibleYear += 1; } render(); });
+  render();
+  renderSelected();
+</script>

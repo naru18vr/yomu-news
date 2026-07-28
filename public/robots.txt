@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://naru18vr.github.io/yomu-news/sitemap-index.xml

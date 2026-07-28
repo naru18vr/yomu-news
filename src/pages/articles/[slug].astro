@@ -1,0 +1,21 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import { getNews } from '../../lib/news';
+
+export const getStaticPaths = (async () => {
+  const articles = await getCollection('news');
+  return articles.map((article) => ({ params: { slug: article.slug }, props: { article } }));
+}) satisfies GetStaticPaths;
+
+const { article } = Astro.props;
+const { Content } = await article.render();
+const all = await getNews();
+const index = all.findIndex((entry) => entry.slug === article.slug);
+const previous = all[index + 1];
+const next = all[index - 1];
+const sameDay = all.find((entry) => entry.data.day === article.data.day && entry.slug !== article.slug);
+---
+
+<ArticleLayout {article} {previous} {next} {sameDay}><Content /></ArticleLayout>

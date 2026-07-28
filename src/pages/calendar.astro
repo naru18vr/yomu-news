@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Calendar from '../components/Calendar.astro';
+import { getNews } from '../lib/news';
+
+const articles = await getNews();
+---
+
+<BaseLayout title="カレンダー" description="日付を選んで、読むニュースの朝刊と夕刊を開きます。">
+  <header class="page-heading">
+    <p class="eyebrow">CALENDAR</p>
+    <h1>カレンダーから読む</h1>
+    <p class="intro">記事がある日付だけを選べます。青は朝刊、橙は夕刊です。</p>
+  </header>
+  <Calendar articles={articles} />
+</BaseLayout>

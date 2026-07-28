@@ -1,0 +1,20 @@
+<div class="font-controls" aria-label="文字サイズ">
+  <span>文字</span>
+  <button type="button" data-font-size="small" aria-label="文字を小さくする">小</button>
+  <button type="button" data-font-size="normal" aria-label="標準の文字サイズにする">標準</button>
+  <button type="button" data-font-size="large" aria-label="文字を大きくする">大</button>
+</div>
+
+<script>
+  const savedSize = localStorage.getItem('yomu-news-font-size');
+  if (savedSize) document.documentElement.dataset.fontSize = savedSize;
+
+  document.querySelectorAll<HTMLButtonElement>('[data-font-size]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const size = button.dataset.fontSize;
+      if (!size) return;
+      document.documentElement.dataset.fontSize = size;
+      localStorage.setItem('yomu-news-font-size', size);
+    });
+  });
+</script>

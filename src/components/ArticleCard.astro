@@ -1,0 +1,33 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import EditionBadge from './EditionBadge.astro';
+import { contentTypeLabel, formatDay } from '../lib/format';
+import { toUrl } from '../lib/paths';
+
+interface Props {
+  article: CollectionEntry<'news'>;
+  compact?: boolean;
+}
+
+const { article, compact = false } = Astro.props;
+const { data } = article;
+---
+
+<article class:list={['article-card', { 'article-card--compact': compact }]}>
+  <div class="article-card__meta">
+    <time datetime={data.day}>{formatDay(data.day)}</time>
+    <EditionBadge edition={data.edition} />
+    <span>{data.readingTime}分で読める</span>
+  </div>
+  <h2><a href={toUrl(`articles/${article.slug}/`)}>{data.title}</a></h2>
+  <p>{data.description}</p>
+  {!compact && (
+    <div class="article-card__footer">
+      <div class="tag-list" aria-label="ジャンル">
+        {data.topicSlugs.map((slug, index) => <a href={toUrl(`topics/${slug}/`)}>{data.topics[index] ?? slug}</a>)}
+      </div>
+      <span class="content-type">{data.contentTypes.map((type) => contentTypeLabel[type]).join('・')}</span>
+    </div>
+  )}
+  <a class="text-link article-card__read" href={toUrl(`articles/${article.slug}/`)}>読む<span aria-hidden="true"> →</span></a>
+</article>

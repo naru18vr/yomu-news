@@ -1,0 +1,14 @@
+---
+import { editionLabel } from '../lib/format';
+
+interface Props {
+  edition: 'morning' | 'evening';
+}
+
+const { edition } = Astro.props;
+---
+
+<span class:list={['edition-badge', edition]}>
+  <span aria-hidden="true">{edition === 'morning' ? '朝' : '夕'}</span>
+  {editionLabel[edition]}
+</span>

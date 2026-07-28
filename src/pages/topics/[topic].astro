@@ -1,0 +1,23 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { getNews } from '../../lib/news';
+import { topics } from '../../lib/taxonomy';
+
+export const getStaticPaths = (async () => topics.map((topic) => ({ params: { topic: topic.slug }, props: { topic } }))) satisfies GetStaticPaths;
+
+const { topic } = Astro.props;
+const articles = (await getNews()).filter((article) => article.data.topicSlugs.includes(topic.slug));
+---
+
+<BaseLayout title={`${topic.name}の記事`} description={`${topic.name}をテーマにした、読むニュースの記事一覧です。`}>
+  <header class="page-heading">
+    <p class="eyebrow">TOPIC</p>
+    <h1>{topic.name}</h1>
+    <p class="intro">{articles.length}本の記事があります。</p>
+  </header>
+  <div class="article-list">
+    {articles.map((article) => <ArticleCard article={article} />)}
+  </div>
+</BaseLayout>

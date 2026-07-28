@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getNews } from '../../lib/news';
+import { topics } from '../../lib/taxonomy';
+import { toUrl } from '../../lib/paths';
+
+const articles = await getNews();
+---
+
+<BaseLayout title="ジャンル" description="ジャンルから記事を探せます。">
+  <header class="page-heading">
+    <p class="eyebrow">TOPICS</p>
+    <h1>ジャンルから読む</h1>
+    <p class="intro">気になったテーマから、短いニュースと読みものへ。</p>
+  </header>
+  <div class="topic-grid">
+    {topics.map((topic) => {
+      const count = articles.filter((article) => article.data.topicSlugs.includes(topic.slug)).length;
+      return <a class="topic-link" href={toUrl(`topics/${topic.slug}/`)}><strong>{topic.name}</strong><span>{count}本の記事</span></a>;
+    })}
+  </div>
+</BaseLayout>

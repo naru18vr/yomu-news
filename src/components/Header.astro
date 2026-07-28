@@ -1,0 +1,33 @@
+---
+import { toUrl } from '../lib/paths';
+
+const pathname = Astro.url.pathname;
+const links = [
+  { href: toUrl(), label: 'ホーム', icon: '⌂' },
+  { href: toUrl('calendar/'), label: 'カレンダー', icon: '□' },
+  { href: toUrl('search/'), label: '検索', icon: '⌕' },
+  { href: toUrl('topics/'), label: 'ジャンル', icon: '◈' },
+  { href: toUrl('about/'), label: 'このサイトについて', icon: 'i' },
+];
+---
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href={toUrl()} aria-label="読むニュース ホーム">
+      <span class="brand__mark" aria-hidden="true">読</span>
+      <span>読むニュース</span>
+    </a>
+    <nav class="desktop-nav" aria-label="主要ナビゲーション">
+      {links.slice(1).map((link) => <a href={link.href} aria-current={pathname === link.href ? 'page' : undefined}>{link.label}</a>)}
+    </nav>
+  </div>
+</header>
+
+<nav class="bottom-nav" aria-label="モバイル用ナビゲーション">
+  {links.map((link) => (
+    <a href={link.href} aria-current={pathname === link.href ? 'page' : undefined}>
+      <span aria-hidden="true">{link.icon}</span>
+      <span>{link.label}</span>
+    </a>
+  ))}
+</nav>

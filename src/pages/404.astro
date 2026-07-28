@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { toUrl } from '../lib/paths';
+---
+
+<BaseLayout title="ページが見つかりません">
+  <section class="page-heading">
+    <p class="eyebrow">404</p>
+    <h1>そのページは見つかりませんでした。</h1>
+    <p class="intro">URLが変わったか、記事がまだ公開されていないようです。</p>
+    <a class="button" href={toUrl()}>トップへ戻る</a>
+  </section>
+</BaseLayout>
