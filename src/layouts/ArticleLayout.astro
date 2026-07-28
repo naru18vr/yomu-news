@@ -20,7 +20,7 @@ const { data } = article;
 <BaseLayout title={`${articleDisplayTitle(data)}｜${formatDay(data.day)} ${data.edition === 'morning' ? '朝刊' : '夕刊'}`} description={data.description} ogType="article" publishedTime={data.date} section={data.topics[0]}>
   <article class="article-page">
     <a class="back-link" href={toUrl()}>← トップへ戻る</a>
-    <header class="article-page__header">
+    <header class:list={['article-page__header', `article-page__header--${data.edition}`]}>
       <div class="article-card__meta article-page__meta">
         <time datetime={data.day}>{formatDay(data.day)}</time>
         <EditionBadge edition={data.edition} />
