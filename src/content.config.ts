@@ -28,4 +28,23 @@ const news = defineCollection({
   }),
 });
 
-export const collections = { news };
+const works = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    date: z.coerce.date(),
+    day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    type: z.enum(['essay', 'short-short', 'flash-fiction', 'dialogue', 'observation']),
+    description: z.string(),
+    articleSlug: z.string(),
+    topics: z.array(z.string()).min(1),
+    topicSlugs: z.array(z.string()).min(1),
+    hashtags: z.array(z.object({
+      label: z.string(),
+      slug: z.string().regex(/^[a-z0-9-]+$/),
+    })).default([]),
+    readingTime: z.number().int().positive(),
+  }),
+});
+
+export const collections = { news, works };
