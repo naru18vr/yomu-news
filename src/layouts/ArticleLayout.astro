@@ -3,8 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 import BaseLayout from './BaseLayout.astro';
 import EditionBadge from '../components/EditionBadge.astro';
 import ArticleCard from '../components/ArticleCard.astro';
-import { contentTypeLabel, formatDay } from '../lib/format';
-import { articleDisplayTitle } from '../lib/format';
+import { articleDisplayTitle, contentTypeLabel, editionLabel, formatDay } from '../lib/format';
 import { toUrl } from '../lib/paths';
 
 interface Props {
@@ -22,13 +21,12 @@ const { data } = article;
   <article class="article-page">
     <a class="back-link" href={toUrl()}>← トップへ戻る</a>
     <header class="article-page__header">
-      <div class="article-card__meta">
+      <div class="article-card__meta article-page__meta">
         <time datetime={data.day}>{formatDay(data.day)}</time>
         <EditionBadge edition={data.edition} />
         <span>{data.readingTime}分で読める</span>
       </div>
       <h1>{articleDisplayTitle(data)}</h1>
-      <p class="article-page__edition-title">{formatDay(data.day)} {data.edition === 'morning' ? '朝刊' : '夕刊'}</p>
       <div class="tag-list" aria-label="ジャンル">
         {data.topicSlugs.map((slug, index) => <a href={toUrl(`topics/${slug}/`)}>{data.topics[index] ?? slug}</a>)}
       </div>
@@ -58,16 +56,16 @@ const { data } = article;
         ))}
       </ul>
     </section>
-    <nav class="article-navigation" aria-label="記事の移動">
-      {previous ? <a href={toUrl(`articles/${previous.slug}/`)}><small>← 前の記事</small><span>{previous.data.title}</span></a> : <span></span>}
-      {next ? <a class="article-navigation__next" href={toUrl(`articles/${next.slug}/`)}><small>次の記事 →</small><span>{next.data.title}</span></a> : <span></span>}
-    </nav>
     {sameDay && (
       <section class="same-day">
         <p class="eyebrow">同じ日の記事</p>
         <ArticleCard article={sameDay} compact />
       </section>
     )}
+    <nav class="article-navigation" aria-label="記事の移動">
+      {previous ? <a href={toUrl(`articles/${previous.slug}/`)}><small>← 前の記事</small><span>{articleDisplayTitle(previous.data)}</span><em>{formatDay(previous.data.day)}・{editionLabel[previous.data.edition]}</em></a> : <span></span>}
+      {next ? <a class="article-navigation__next" href={toUrl(`articles/${next.slug}/`)}><small>次の記事 →</small><span>{articleDisplayTitle(next.data)}</span><em>{formatDay(next.data.day)}・{editionLabel[next.data.edition]}</em></a> : <span></span>}
+    </nav>
     <p class="article-page__calendar-link"><a class="button button--secondary" href={toUrl(`dates/${data.day}/`)}>この日の記事一覧へ</a></p>
   </article>
 </BaseLayout>

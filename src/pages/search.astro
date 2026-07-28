@@ -16,7 +16,7 @@ const hashtags = collectHashtags(await getNews());
     <p class="intro">キーワードや日付を組み合わせて、読みたい記事を絞り込みます。</p>
   </header>
   <nav class="search-quick" aria-label="クイック検索">
-    <button type="button" data-quick-search="recent">最近7日</button><button type="button" data-quick-search="essay">エッセイ</button><button type="button" data-quick-search="short-short">ショートショート</button><button type="button" data-quick-search="international">国際</button><button type="button" data-quick-search="economy">経済</button><button type="button" data-quick-search="science">科学</button>
+    <button type="button" data-quick-search="recent" aria-pressed="false">最近7日</button><button type="button" data-quick-search="essay" aria-pressed="false">エッセイ</button><button type="button" data-quick-search="short-short" aria-pressed="false">ショートショート</button><button type="button" data-quick-search="international" aria-pressed="false">国際</button><button type="button" data-quick-search="economy" aria-pressed="false">経済</button><button type="button" data-quick-search="science" aria-pressed="false">科学</button>
   </nav>
   <form class="search-form" data-search-form>
     <div class="form-field">
@@ -27,8 +27,8 @@ const hashtags = collectHashtags(await getNews());
       <summary>条件を絞り込む <span>ジャンル・日付・読み物・朝刊／夕刊</span></summary>
       <div class="search-details__body">
         <div class="form-field">
-          <label for="tag">キーワード</label>
-          <select id="tag" name="tag"><option value="">すべてのキーワード</option>{hashtags.map((tag) => <option value={tag.slug}>#{tag.label}</option>)}</select>
+          <label for="tag">登録キーワード <small>記事に付けられた言葉から選びます</small></label>
+          <select id="tag" name="tag"><option value="">すべての登録キーワード</option>{hashtags.map((tag) => <option value={tag.slug}>#{tag.label}</option>)}</select>
         </div>
         <div class="form-field"><label for="topic">ジャンル</label><select id="topic" name="topic"><option value="">すべてのジャンル</option>{topics.map((topic) => <option value={topic.slug}>{topic.name}</option>)}</select></div>
         <div class="form-field"><label for="content-type">読み物の種類</label><select id="content-type" name="contentType"><option value="">すべての種類</option>{Object.entries(contentTypeLabel).map(([key, label]) => <option value={key}>{label}</option>)}</select></div>
@@ -54,6 +54,7 @@ const hashtags = collectHashtags(await getNews());
   const typeLabels = { essay: 'エッセイ', 'short-short': 'ショートショート', 'flash-fiction': '掌編', dialogue: '会話篇', observation: '観察記' };
   const editionLabels = { morning: '朝刊', evening: '夕刊' };
   let items = [];
+  let activeQuick = '';
 
   function escapeHtml(value) {
     return String(value).replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[character]));
@@ -62,13 +63,34 @@ const hashtags = collectHashtags(await getNews());
     const [year, month, date] = day.split('-');
     return `${year}年${Number(month)}月${Number(date)}日`;
   }
+  function getTokyoDateParts(date = new Date()) {
+    const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(date);
+    return Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  }
+  function tokyoDayOffset(offset = 0) {
+    const today = getTokyoDateParts();
+    const value = new Date(Date.UTC(Number(today.year), Number(today.month) - 1, Number(today.day)));
+    value.setUTCDate(value.getUTCDate() + offset);
+    return `${value.getUTCFullYear()}-${String(value.getUTCMonth() + 1).padStart(2, '0')}-${String(value.getUTCDate()).padStart(2, '0')}`;
+  }
+  function setQuick(value = '') {
+    activeQuick = value;
+    document.querySelectorAll('[data-quick-search]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.quickSearch === value)));
+  }
+  function detectQuick() {
+    const values = new FormData(form);
+    const quick = String(values.get('contentType') || values.get('topic') || '');
+    if (['essay', 'short-short', 'international', 'economy', 'science'].includes(quick)) return quick;
+    if (String(values.get('start') || '') === tokyoDayOffset(-6) && String(values.get('end') || '') === tokyoDayOffset()) return 'recent';
+    return '';
+  }
   function render(found) {
     status.textContent = `${found.length}件の記事が見つかりました。新しい順に表示しています。`;
     if (!found.length) {
       results.innerHTML = '<p class="empty-state">条件に合う記事はありませんでした。<br />条件を少し減らしてみてください。</p>';
       return;
     }
-    results.innerHTML = found.map((item) => `<article class="article-card"><h2><a href="${item.url}">${escapeHtml(item.title)}</a></h2><div class="article-card__meta"><time datetime="${item.date}">${displayDate(item.date)}</time><span class="edition-badge ${item.edition}"><span>${item.edition === 'morning' ? '朝' : '夕'}</span>${editionLabels[item.edition]}</span><span>約${item.readingTime}分</span></div><p>${escapeHtml(item.description)}</p><div class="article-card__footer"><div class="tag-list">${item.topics.map((topic) => `<span>${escapeHtml(topic)}</span>`).join('')}</div><span class="content-type">${item.contentTypes.map((type) => typeLabels[type]).join('・')}</span></div><a class="text-link article-card__read" href="${item.url}">読む →</a></article>`).join('');
+    results.innerHTML = found.map((item) => `<article class="article-card"><h2><a href="${item.url}">${escapeHtml(item.title)}</a></h2><div class="article-card__meta"><time datetime="${item.date}">${displayDate(item.date)}</time><span class="edition-badge ${item.edition}"><span>${item.edition === 'morning' ? '朝' : '夕'}</span>${editionLabels[item.edition]}</span><span>約${item.readingTime}分</span></div><p>${escapeHtml(item.description)}</p><div class="article-card__footer"><div class="tag-list">${item.topics.map((topic, index) => `<a href="${baseUrl}search/?topic=${encodeURIComponent(item.topicSlugs[index])}" aria-label="${escapeHtml(topic)}で記事を探す">${escapeHtml(topic)}</a>`).join('')}</div><span class="content-type">${item.contentTypes.map((type) => typeLabels[type]).join('・')}</span></div><a class="text-link article-card__read" href="${item.url}">読む →</a></article>`).join('');
   }
   function applyQuery() {
     const query = new URLSearchParams(window.location.search);
@@ -81,6 +103,7 @@ const hashtags = collectHashtags(await getNews());
       const radio = form.querySelector(`input[name="edition"][value="${edition}"]`);
       if (radio) radio.checked = true;
     }
+    setQuick(detectQuick());
   }
   function syncQuery() {
     const query = new URLSearchParams();
@@ -113,17 +136,17 @@ const hashtags = collectHashtags(await getNews());
     });
     render(found);
   }
-  form.addEventListener('submit', (event) => { event.preventDefault(); syncQuery(); search(); });
-  clearButton.addEventListener('click', () => { form.reset(); syncQuery(); search(); });
+  form.addEventListener('submit', (event) => { event.preventDefault(); setQuick(detectQuick()); syncQuery(); search(); });
+  form.addEventListener('change', () => { if (activeQuick && detectQuick() !== activeQuick) setQuick(); });
+  clearButton.addEventListener('click', () => { form.reset(); setQuick(); syncQuery(); search(); });
   document.querySelectorAll('[data-quick-search]').forEach((button) => button.addEventListener('click', () => {
     form.reset();
     const quick = button.dataset.quickSearch;
     if (quick === 'recent') {
-      const end = new Date(); const start = new Date(); start.setDate(end.getDate() - 6);
-      form.elements.start.value = start.toISOString().slice(0, 10); form.elements.end.value = end.toISOString().slice(0, 10);
+      form.elements.start.value = tokyoDayOffset(-6); form.elements.end.value = tokyoDayOffset();
     } else if (['essay', 'short-short'].includes(quick)) form.elements.contentType.value = quick;
     else form.elements.topic.value = quick;
-    syncQuery(); search();
+    setQuick(quick); syncQuery(); search();
   }));
   fetch(indexUrl)
     .then((response) => response.ok ? response.json() : Promise.reject(new Error('検索データを取得できませんでした。')))
