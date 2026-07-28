@@ -13,6 +13,7 @@ export const GET: APIRoute = async () => {
     topicSlugs: article.data.topicSlugs,
     contentTypes: article.data.contentTypes,
     readingTitles: article.data.readingTitles,
+    hashtags: article.data.hashtags,
     keywords: article.data.keywords,
     readingTime: article.data.readingTime,
     url: toUrl(`articles/${article.slug}/`),
