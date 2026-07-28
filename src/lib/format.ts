@@ -20,3 +20,7 @@ export function formatMonth(month: string): string {
   const [year, value] = month.split('-');
   return `${year}年${Number(value)}月`;
 }
+
+export function articleDisplayTitle(data: { title: string; displayTitle?: string }): string {
+  return data.displayTitle || data.title;
+}
