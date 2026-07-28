@@ -7,13 +7,13 @@ import { toUrl } from '../../lib/paths';
 const hashtags = collectHashtags(await getNews());
 ---
 
-<BaseLayout title="タグ" description="ハッシュタグから読むニュースの記事を探せます。">
+<BaseLayout title="キーワード" description="ニュースに登場した言葉から記事を探せます。">
   <header class="page-heading">
-    <p class="eyebrow">HASHTAGS</p>
-    <h1>タグから読む</h1>
-    <p class="intro">気になる言葉を選ぶと、関連するニュースと読みものが見つかります。</p>
+    <p class="eyebrow">キーワード</p>
+    <h1>キーワードから読む</h1>
+    <p class="intro">ニュースに登場した言葉から記事を探せます。</p>
   </header>
-  <div class="hashtag-cloud" aria-label="ハッシュタグ一覧">
+  <div class="hashtag-cloud" aria-label="キーワード一覧">
     {hashtags.map((tag) => <a href={toUrl(`tags/${tag.slug}/`)}>#{tag.label}<span>{tag.count}</span></a>)}
   </div>
   <p class="page-action"><a class="button button--secondary" href={toUrl('search/')}>条件を組み合わせて検索する</a></p>
