@@ -1,0 +1,34 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import { contentTypeLabel, formatDay } from '../lib/format';
+import { toUrl } from '../lib/paths';
+
+interface Props {
+  work: CollectionEntry<'works'>;
+}
+const { work } = Astro.props;
+const { data } = work;
+---
+
+<BaseLayout title={data.title} description={data.description}>
+  <article class="article-page">
+    <a class="back-link" href={toUrl(`articles/${data.articleSlug}/`)}>← 朝刊へ戻る</a>
+    <header class="article-page__header">
+      <div class="article-card__meta">
+        <time datetime={data.day}>{formatDay(data.day)}</time>
+        <span>{data.readingTime}分で読める</span>
+      </div>
+      <p class="article-page__types">{contentTypeLabel[data.type]}</p>
+      <h1>{data.title}</h1>
+      <div class="tag-list" aria-label="ジャンル">
+        {data.topicSlugs.map((slug, index) => <a href={toUrl(`topics/${slug}/`)}>{data.topics[index] ?? slug}</a>)}
+      </div>
+      {data.hashtags.length > 0 && <div class="hashtag-list article-page__hashtags" aria-label="ハッシュタグ">
+        {data.hashtags.map((tag) => <a href={toUrl(`tags/${tag.slug}/`)}>#{tag.label}</a>)}
+      </div>}
+    </header>
+    <div class="prose"><slot /></div>
+    <p class="article-page__calendar-link"><a class="button button--secondary" href={toUrl(`articles/${data.articleSlug}/`)}>ニュース超要約へ戻る</a></p>
+  </article>
+</BaseLayout>
