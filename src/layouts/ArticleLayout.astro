@@ -29,6 +29,9 @@ const { data } = article;
       <div class="tag-list" aria-label="ジャンル">
         {data.topicSlugs.map((slug, index) => <a href={toUrl(`topics/${slug}/`)}>{data.topics[index] ?? slug}</a>)}
       </div>
+      {data.hashtags.length > 0 && <div class="hashtag-list article-page__hashtags" aria-label="ハッシュタグ">
+        {data.hashtags.map((tag) => <a href={toUrl(`tags/${tag.slug}/`)}>#{tag.label}</a>)}
+      </div>}
       <p class="article-page__types">{data.contentTypes.map((type) => contentTypeLabel[type]).join('・')}</p>
     </header>
     <div class="prose"><slot /></div>
