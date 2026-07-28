@@ -1,0 +1,9 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import MonthlyCard from '../../../components/MonthlyCard.astro';
+import { getPublishedMonthlyIssues, getMonthlyIssuesByYear } from '../../../lib/monthly';
+import { toUrl } from '../../../lib/paths';
+export async function getStaticPaths() { const years = [...new Set((await getPublishedMonthlyIssues()).map((issue) => issue.data.year))]; return years.map((year) => ({ params: { year: String(year) } })); }
+const year = Number(Astro.params.year); const issues = await getMonthlyIssuesByYear(year);
+---
+<BaseLayout title={`${year}年の月間まとめ`} description={`${year}年の月刊号一覧です。`}><header class="page-heading"><p class="eyebrow">月刊</p><h1>{year}年の月間まとめ</h1></header><div class="article-list">{issues.map((issue) => <MonthlyCard issue={issue} />)}</div><p class="page-action"><a class="button button--secondary" href={toUrl('monthly/')}>月間まとめへ戻る</a></p></BaseLayout>
