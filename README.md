@@ -117,6 +117,15 @@ src/
 .github/workflows/  # GitHub Pages デプロイ
 ```
 
+## 月刊号の追加方法
+
+1. `src/content/monthly/` に `YYYY-MM.md` を追加します。
+2. Front Matter の `year`、`month`、`period`、ジャンル、出典を記入します。
+3. 「今月のニュースの大きな流れ」「月間エッセイ」「月間ショートショート」「翌月へ続いたこと」を執筆します。
+4. 公開前に `draft: false` に変更し、`npm run check` と `npm run build` を実行します。
+
+`draft: true` の月刊号は本番サイト、RSS、サイトマップには表示されません。公開前には、年月・出典URL・読了時間と、創作部分が事実と混同されないことを確認してください。
+
 ## GitHub Pages の公開
 
 このリポジトリでは `.github/workflows/deploy.yml` が `main` への push ごとに動きます。
