@@ -22,12 +22,19 @@ const { data } = article;
   <h2><a href={toUrl(`articles/${article.slug}/`)}>{data.title}</a></h2>
   <p>{data.description}</p>
   {!compact && (
-    <div class="article-card__footer">
-      <div class="tag-list" aria-label="ジャンル">
-        {data.topicSlugs.map((slug, index) => <a href={toUrl(`topics/${slug}/`)}>{data.topics[index] ?? slug}</a>)}
+    <>
+      <div class="article-card__footer">
+        <div class="tag-list" aria-label="ジャンル">
+          {data.topicSlugs.map((slug, index) => <a href={toUrl(`topics/${slug}/`)}>{data.topics[index] ?? slug}</a>)}
+        </div>
+        <span class="content-type">{data.contentTypes.map((type) => contentTypeLabel[type]).join('・')}</span>
       </div>
-      <span class="content-type">{data.contentTypes.map((type) => contentTypeLabel[type]).join('・')}</span>
-    </div>
+      {data.hashtags.length > 0 && (
+        <div class="hashtag-list" aria-label="ハッシュタグ">
+          {data.hashtags.map((tag) => <a href={toUrl(`tags/${tag.slug}/`)}>#{tag.label}</a>)}
+        </div>
+      )}
+    </>
   )}
   <a class="text-link article-card__read" href={toUrl(`articles/${article.slug}/`)}>読む<span aria-hidden="true"> →</span></a>
 </article>
