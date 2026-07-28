@@ -48,4 +48,15 @@ const works = defineCollection({
   }),
 });
 
-export const collections = { news, works };
+const monthly = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(), displayTitle: z.string().optional(), year: z.number().int(), month: z.number().int().min(1).max(12),
+    period: z.string().regex(/^\d{4}-\d{2}$/), date: z.coerce.date(), description: z.string(),
+    topics: z.array(z.string()).min(1), topicSlugs: z.array(z.string()).min(1), readingTime: z.number().int().positive(),
+    featured: z.boolean().default(false), draft: z.boolean(),
+    sources: z.array(z.object({ publisher: z.string(), title: z.string(), url: z.string().url(), publishedAt: z.string() })),
+  }).refine((data) => data.topics.length === data.topicSlugs.length, { message: 'topics と topicSlugs の数を一致させてください' }),
+});
+
+export const collections = { news, works, monthly };

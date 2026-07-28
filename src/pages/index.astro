@@ -87,4 +87,5 @@ const recent = articles.filter((article) => article.slug !== latestMorning?.slug
     </div>
     <div class="article-list">{recent.map((article) => <ArticleCard article={article} compact />)}</div>
   </section>
+  <section class="monthly-link" aria-labelledby="monthly-link-heading"><p class="eyebrow">月刊</p><h2 id="monthly-link-heading">月間まとめ</h2><p>1か月のニュースを、総括とエッセイと物語で振り返ります。</p><a class="text-link" href={toUrl('monthly/')}>月刊号を見る →</a></section>
 </BaseLayout>

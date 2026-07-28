@@ -1,0 +1,7 @@
+---
+import MonthlyLayout from '../../layouts/MonthlyLayout.astro';
+import { getPublishedMonthlyIssues } from '../../lib/monthly';
+export async function getStaticPaths() { return (await getPublishedMonthlyIssues()).map((issue) => ({ params: { period: issue.slug }, props: { issue } })); }
+const { issue } = Astro.props; const issues = await getPublishedMonthlyIssues(); const index = issues.findIndex((item) => item.slug === issue.slug); const { Content } = await issue.render();
+---
+<MonthlyLayout {issue} previous={issues[index + 1]} next={issues[index - 1]}><Content /></MonthlyLayout>
