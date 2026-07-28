@@ -3,11 +3,10 @@ import { toUrl } from '../lib/paths';
 
 const pathname = Astro.url.pathname;
 const links = [
-  { href: toUrl(), label: 'ホーム', icon: '⌂' },
+  { href: toUrl(), label: '今日', icon: '⌂' },
   { href: toUrl('calendar/'), label: 'カレンダー', icon: '□' },
-  { href: toUrl('search/'), label: '検索', icon: '⌕' },
-  { href: toUrl('topics/'), label: 'ジャンル', icon: '◈' },
-  { href: toUrl('about/'), label: 'このサイトについて', icon: 'i' },
+  { href: toUrl('search/'), label: '探す', icon: '⌕' },
+  { href: toUrl('about/'), label: 'このサイト', icon: 'i' },
 ];
 ---
 
@@ -20,6 +19,7 @@ const links = [
     <nav class="desktop-nav" aria-label="主要ナビゲーション">
       {links.slice(1).map((link) => <a href={link.href} aria-current={pathname === link.href ? 'page' : undefined}>{link.label}</a>)}
     </nav>
+    <button class="font-menu__trigger" type="button" aria-label="文字サイズを変更" aria-expanded="false" data-font-menu-trigger>Aa</button>
   </div>
 </header>
 
