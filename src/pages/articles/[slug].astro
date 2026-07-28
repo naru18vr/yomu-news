@@ -18,7 +18,10 @@ const index = all.findIndex((entry) => entry.slug === article.slug);
 const previous = all[index + 1];
 const next = all[index - 1];
 const sameDay = all.find((entry) => entry.data.day === article.data.day && entry.slug !== article.slug);
-const articleWorks = works.filter((work) => work.data.articleSlug === article.slug);
+const articleWorks = works
+  .filter((work) => work.data.articleSlug === article.slug)
+  .sort((a, b) => (a.data.type === 'essay' ? -1 : 1) - (b.data.type === 'essay' ? -1 : 1));
+const renderedWorks = await Promise.all(articleWorks.map(async (work) => ({ work, Content: (await work.render()).Content })));
 ---
 
-<ArticleLayout {article} {previous} {next} {sameDay} works={articleWorks}><Content /></ArticleLayout>
+<ArticleLayout {article} {previous} {next} {sameDay} works={renderedWorks}><Content /></ArticleLayout>

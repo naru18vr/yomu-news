@@ -15,14 +15,14 @@ const { tag } = Astro.props;
 const articles = (await getNews()).filter((article) => article.data.hashtags.some((item) => item.slug === tag.slug));
 ---
 
-<BaseLayout title={`#${tag.label}`} description={`#${tag.label} が付いた、読むニュースの記事一覧です。`}>
+<BaseLayout title={`#${tag.label}`} description={`#${tag.label} に関する、読むニュースの記事一覧です。`}>
   <header class="page-heading">
-    <p class="eyebrow">HASHTAG</p>
+    <p class="eyebrow">キーワード</p>
     <h1>#{tag.label}</h1>
     <p class="intro">{articles.length}本の記事があります。</p>
   </header>
   <div class="article-list">
     {articles.map((article) => <ArticleCard article={article} />)}
   </div>
-  <p class="page-action"><a class="button button--secondary" href={toUrl('tags/')}>タグ一覧へ戻る</a></p>
+  <p class="page-action"><a class="button button--secondary" href={toUrl('tags/')}>キーワード一覧へ戻る</a></p>
 </BaseLayout>

@@ -8,9 +8,9 @@ const articles = await getNews();
 
 <BaseLayout title="カレンダー" description="日付を選んで、読むニュースの朝刊と夕刊を開きます。">
   <header class="page-heading">
-    <p class="eyebrow">CALENDAR</p>
+    <p class="eyebrow">日付から読む</p>
     <h1>カレンダーから読む</h1>
-    <p class="intro">記事がある日付だけを選べます。青は朝刊、橙は夕刊です。</p>
+    <p class="intro">記事がある日付だけを選べます。朝刊・夕刊は点で区別しています。</p>
   </header>
   <Calendar articles={articles} />
 </BaseLayout>

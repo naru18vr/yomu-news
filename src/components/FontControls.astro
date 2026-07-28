@@ -1,5 +1,5 @@
-<div class="font-controls" aria-label="文字サイズ">
-  <span>文字</span>
+<div class="font-controls" aria-label="文字サイズ" data-font-menu hidden>
+  <span>文字サイズ</span>
   <button type="button" data-font-size="small" aria-label="文字を小さくする">小</button>
   <button type="button" data-font-size="normal" aria-label="標準の文字サイズにする">標準</button>
   <button type="button" data-font-size="large" aria-label="文字を大きくする">大</button>
@@ -8,6 +8,14 @@
 <script>
   const savedSize = localStorage.getItem('yomu-news-font-size');
   if (savedSize) document.documentElement.dataset.fontSize = savedSize;
+  const panel = document.querySelector('[data-font-menu]');
+  const trigger = document.querySelector('[data-font-menu-trigger]');
+
+  trigger?.addEventListener('click', () => {
+    const isOpen = panel?.hasAttribute('hidden') === false;
+    panel?.toggleAttribute('hidden', isOpen);
+    trigger.setAttribute('aria-expanded', String(!isOpen));
+  });
 
   document.querySelectorAll<HTMLButtonElement>('[data-font-size]').forEach((button) => {
     button.addEventListener('click', () => {
@@ -15,6 +23,8 @@
       if (!size) return;
       document.documentElement.dataset.fontSize = size;
       localStorage.setItem('yomu-news-font-size', size);
+      panel?.setAttribute('hidden', '');
+      trigger?.setAttribute('aria-expanded', 'false');
     });
   });
 </script>

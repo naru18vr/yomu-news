@@ -1,7 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import EditionBadge from './EditionBadge.astro';
-import { contentTypeLabel, formatDay } from '../lib/format';
+import { articleDisplayTitle, contentTypeLabel, formatDay } from '../lib/format';
 import { toUrl } from '../lib/paths';
 
 interface Props {
@@ -19,7 +19,7 @@ const { data } = article;
     <EditionBadge edition={data.edition} />
     <span>{data.readingTime}分で読める</span>
   </div>
-  <h2><a href={toUrl(`articles/${article.slug}/`)}>{data.title}</a></h2>
+  <h2><a href={toUrl(`articles/${article.slug}/`)}>{articleDisplayTitle(data)}</a></h2>
   <p>{data.description}</p>
   {!compact && (
     <>

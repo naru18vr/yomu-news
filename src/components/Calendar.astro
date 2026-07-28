@@ -30,7 +30,7 @@ const initialDay = days[0] ?? '';
   </div>
   <div class="calendar__week" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div>
   <div class="calendar__grid" data-calendar-grid aria-label="記事カレンダー"></div>
-  <p class="calendar__legend"><span><b class="dot dot--morning"></b>朝刊</span><span><b class="dot dot--evening"></b>夕刊</span><span>「朝」「夕」でも区別できます</span></p>
+  <p class="calendar__legend"><span><b class="dot dot--morning"></b>朝刊</span><span><b class="dot dot--evening"></b>夕刊</span></p>
   <div class="calendar__selected" data-calendar-selected aria-live="polite"></div>
   <noscript>
     <p>JavaScriptを有効にすると月を切り替えられます。記事のある日付は<a href={toUrl(`dates/${initialDay}/`)}>最新の日付ページ</a>から読めます。</p>
@@ -77,7 +77,7 @@ const initialDay = days[0] ?? '';
       button.className = `calendar__day${editions.length ? ' has-articles' : ''}${day === selectedDay ? ' is-selected' : ''}${day === todayKey ? ' is-today' : ''}`;
       button.disabled = !editions.length;
       button.setAttribute('aria-label', `${visibleMonth + 1}月${date}日${status}`);
-      button.innerHTML = `<span>${date}</span>${editions.length ? `<small>${hasMorning ? '朝' : ''}${hasEvening ? '夕' : ''}</small><i class="calendar__dots"><b class="dot dot--morning ${hasMorning ? '' : 'is-hidden'}"></b><b class="dot dot--evening ${hasEvening ? '' : 'is-hidden'}"></b></i>` : ''}`;
+      button.innerHTML = `<span>${date}</span>${editions.length ? `<i class="calendar__dots"><b class="dot dot--morning ${hasMorning ? '' : 'is-hidden'}"></b><b class="dot dot--evening ${hasEvening ? '' : 'is-hidden'}"></b></i>` : ''}`;
       button.addEventListener('click', () => { selectedDay = day; render(); renderSelected(); });
       grid.appendChild(button);
     }
