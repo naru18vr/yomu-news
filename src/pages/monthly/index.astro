@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MonthlyCard from '../../components/MonthlyCard.astro';
+import { getLatestMonthlyIssue, getPublishedMonthlyIssues } from '../../lib/monthly';
+import { toUrl } from '../../lib/paths';
+const issues = await getPublishedMonthlyIssues(); const latest = await getLatestMonthlyIssue();
+const years = [...new Set(issues.map((issue) => issue.data.year))].sort((a, b) => b - a);
+---
+<BaseLayout title="月間まとめ" description="1か月のニュースを、総括とエッセイと物語で振り返ります。">
+  <header class="page-heading"><p class="eyebrow">月刊</p><h1>月間まとめ</h1><p>1か月のニュースを、総括とエッセイと物語で振り返ります。</p></header>
+  {latest ? <MonthlyCard issue={latest} featured /> : <section class="empty-latest"><h2>月刊号は現在準備中です</h2><p>公開まで、毎日の朝刊・夕刊をお楽しみください。</p><a class="button" href={toUrl()}>今日の記事へ戻る</a></section>}
+  {years.length > 0 && <section><div class="section-heading"><div><p class="eyebrow">これまでの月刊号</p><h2>年別に読む</h2></div></div><div class="topic-grid">{years.map((year) => <a class="topic-link" href={toUrl(`monthly/${year}/`)}><strong>{year}年</strong><span>{issues.filter((issue) => issue.data.year === year).length}冊</span></a>)}</div></section>}
+</BaseLayout>
