@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content'; import { getPublishedMonthlyIssues } from '../../../lib/monthly'; import MonthlyPartLayout from '../../../layouts/MonthlyPartLayout.astro';
 export async function getStaticPaths() { const issues = await getPublishedMonthlyIssues(); const parts = await getCollection('monthlyParts'); return issues.flatMap((issue) => parts.filter((part) => part.data.period === issue.data.period).map((part) => ({ params: { period: issue.slug, part: part.data.partSlug }, props: { issue, part } }))); }
-const { issue, part } = Astro.props; const parts = (await getCollection('monthlyParts')).filter((item) => item.data.period === issue.data.period).sort((a,b) => a.data.order-b.data.order); const index = parts.findIndex((item) => item.data.partSlug === part.data.partSlug); const { Content } = await part.render();
+const { issue, part } = Astro.props; const parts = (await getCollection('monthlyParts')).filter((item) => item.data.period === issue.data.period).sort((a,b) => a.data.order-b.data.order); const index = parts.findIndex((item) => item.data.partSlug === part.data.partSlug); const issues = await getPublishedMonthlyIssues(); const issueIndex = issues.findIndex((item) => item.slug === issue.slug); const nextIssue = issues[issueIndex - 1] ?? issues[issueIndex + 1]; const { Content } = await part.render();
 ---
-<MonthlyPartLayout {issue} {part} previous={parts[index-1]} next={parts[index+1]}><Content /></MonthlyPartLayout>
+<MonthlyPartLayout {issue} {part} previous={parts[index-1]} next={parts[index+1]} {nextIssue}><Content /></MonthlyPartLayout>
