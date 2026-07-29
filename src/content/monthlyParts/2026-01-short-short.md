@@ -1,5 +1,6 @@
 ---
 period: "2026-01"
+partSlug: "short-short"
 order: 3
 title: "保留国"
 description: "決めない技術が発達した国を描く月間ショートショート。"
