@@ -80,7 +80,7 @@ const latestMonthly = await getLatestMonthlyIssue();
   <nav class="quick-links" aria-label="読み物を探す">
     <a class="quick-link" href={toUrl('calendar/')}><strong>カレンダーから読む</strong><span>日付を選んで朝刊・夕刊へ</span></a>
     <a class="quick-link" href={toUrl('search/')}><strong>記事を探す</strong><span>ジャンル・キーワード・日付から</span></a>
-    {latestMonthly && <a class="quick-link quick-link--monthly" href={toUrl(`monthly/${latestMonthly.slug}/`)}><strong>月間まとめを読む</strong><span>{latestMonthly.data.year}年{latestMonthly.data.month}月号「{latestMonthly.data.displayTitle ?? latestMonthly.data.title}」</span></a>}
+    {latestMonthly && <a class="quick-link quick-link--monthly" href={toUrl('monthly/')}><strong>月間まとめを読む</strong><span>{latestMonthly.data.year}年{latestMonthly.data.month}月号から、これまでの月刊号まで</span></a>}
   </nav>
 
   {latestMorning && <p class="edition-shortcut"><a href={toUrl(`articles/${latestMorning.slug}/`)}>朝刊を最初から読む →</a></p>}
