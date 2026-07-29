@@ -58,6 +58,6 @@ const monthly = defineCollection({
     sources: z.array(z.object({ publisher: z.string(), title: z.string(), url: z.string().url(), publishedAt: z.string() })),
   }).refine((data) => data.topics.length === data.topicSlugs.length, { message: 'topics と topicSlugs の数を一致させてください' }),
 });
-const monthlyParts = defineCollection({ type: 'content', schema: z.object({ period: z.string().regex(/^\d{4}-\d{2}$/), order: z.number().int().min(1), title: z.string(), description: z.string(), readingTime: z.number().int().positive() }) });
+const monthlyParts = defineCollection({ type: 'content', schema: z.object({ period: z.string().regex(/^\d{4}-\d{2}$/), partSlug: z.string().regex(/^[a-z0-9-]+$/), order: z.number().int().min(1), title: z.string(), description: z.string(), readingTime: z.number().int().positive() }) });
 
 export const collections = { news, works, monthly, monthlyParts };
