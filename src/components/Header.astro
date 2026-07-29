@@ -5,9 +5,9 @@ import FontControls from './FontControls.astro';
 const pathname = Astro.url.pathname;
 const links = [
   { href: toUrl(), label: '今日', icon: '⌂' },
-  { href: toUrl('calendar/'), label: 'カレンダー', icon: '□' },
+  { href: toUrl('monthly/'), label: '月刊', icon: '月' },
   { href: toUrl('search/'), label: '探す', icon: '⌕' },
-  { href: toUrl('about/'), label: 'このサイト', icon: 'i' },
+  { href: toUrl('calendar/'), label: 'カレンダー', icon: '□' },
 ];
 ---
 
