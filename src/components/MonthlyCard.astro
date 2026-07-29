@@ -8,8 +8,12 @@ const { issue, featured = false } = Astro.props;
 ---
 <article class:list={['monthly-card', { 'monthly-card--featured': featured }]}>
   <div class="article-card__meta"><MonthlyBadge /><span>{monthlyLabel(issue.data)}</span><span>約{issue.data.readingTime}分</span></div>
-  <h2><a href={toUrl(`monthly/${issue.slug}/`)}>{monthlyDisplayTitle(issue.data)}</a></h2>
+  <h2>{monthlyDisplayTitle(issue.data)}</h2>
   <p>{issue.data.description}</p>
+  {(issue.data.essayTitle || issue.data.shortStoryTitle) && <dl class="monthly-card__works">
+    {issue.data.essayTitle && <div><dt>エッセイ</dt><dd>{issue.data.essayTitle}</dd></div>}
+    {issue.data.shortStoryTitle && <div><dt>ショートショート</dt><dd>{issue.data.shortStoryTitle}</dd></div>}
+  </dl>}
   <div class="tag-list">{issue.data.topicSlugs.map((slug, i) => <a href={toUrl(`topics/${slug}/`)}>{issue.data.topics[i] ?? slug}</a>)}</div>
-  <a class="button" href={toUrl(`monthly/${issue.slug}/`)}>{issue.data.month}月号を読む</a>
+  <a class="button" href={toUrl(`monthly/${issue.slug}/`)} aria-label={`${monthlyLabel(issue.data)}「${monthlyDisplayTitle(issue.data)}」を読む`}>{issue.data.month}月号を読む</a>
 </article>
