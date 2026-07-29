@@ -51,7 +51,7 @@ const works = defineCollection({
 const monthly = defineCollection({
   type: 'content',
   schema: z.object({
-    title: z.string(), displayTitle: z.string().optional(), year: z.number().int(), month: z.number().int().min(1).max(12),
+    title: z.string(), displayTitle: z.string().optional(), essayTitle: z.string().optional(), shortStoryTitle: z.string().optional(), year: z.number().int(), month: z.number().int().min(1).max(12),
     period: z.string().regex(/^\d{4}-\d{2}$/), date: z.coerce.date(), description: z.string(),
     topics: z.array(z.string()).min(1), topicSlugs: z.array(z.string()).min(1), readingTime: z.number().int().positive(),
     featured: z.boolean().default(false), draft: z.boolean(),
