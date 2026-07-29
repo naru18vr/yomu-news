@@ -7,6 +7,7 @@ import { getWorks } from '../lib/works';
 import { articleDisplayTitle, formatDay } from '../lib/format';
 import { tokyoDay } from '../lib/dates';
 import { toUrl } from '../lib/paths';
+import { getLatestMonthlyIssue } from '../lib/monthly';
 
 const articles = await getNews();
 const works = await getWorks();
@@ -24,11 +25,12 @@ const morningWorks = latestMorning
 const todayEssay = morningWorks.find((work) => work.data.type === 'essay');
 const todayShortShort = morningWorks.find((work) => work.data.type === 'short-short');
 const recent = articles.filter((article) => article.slug !== latestMorning?.slug && article.slug !== todayEvening?.slug).slice(0, 4);
+const latestMonthly = await getLatestMonthlyIssue();
 ---
 
 <BaseLayout>
   <section class="home-hero">
-    <p class="eyebrow">読むニュース</p>
+    <p class="eyebrow">今日、読むもの</p>
     <h1 class="lede">今日の重大ニュースを、<br />エッセイと物語で読む。</h1>
     <p class="intro">毎日数分。確かめた事実と、その日を考える読み物を届けます。</p>
   </section>
@@ -75,10 +77,13 @@ const recent = articles.filter((article) => article.slug !== latestMorning?.slug
     <div><a class="button" href={toUrl('archive/')}>最近の記事を見る</a><a class="button button--secondary" href={toUrl('calendar/')}>カレンダーから探す</a></div>
   </section>}
 
-  <nav class="quick-links" aria-label="記事を探す">
+  <nav class="quick-links" aria-label="読み物を探す">
     <a class="quick-link" href={toUrl('calendar/')}><strong>カレンダーから読む</strong><span>日付を選んで朝刊・夕刊へ</span></a>
     <a class="quick-link" href={toUrl('search/')}><strong>記事を探す</strong><span>ジャンル・キーワード・日付から</span></a>
+    {latestMonthly && <a class="quick-link quick-link--monthly" href={toUrl(`monthly/${latestMonthly.slug}/`)}><strong>月間まとめを読む</strong><span>{latestMonthly.data.year}年{latestMonthly.data.month}月号「{latestMonthly.data.displayTitle ?? latestMonthly.data.title}」</span></a>}
   </nav>
+
+  {latestMorning && <p class="edition-shortcut"><a href={toUrl(`articles/${latestMorning.slug}/`)}>朝刊を最初から読む →</a></p>}
 
   <section aria-labelledby="recent-heading">
     <div class="section-heading">
@@ -87,5 +92,4 @@ const recent = articles.filter((article) => article.slug !== latestMorning?.slug
     </div>
     <div class="article-list">{recent.map((article) => <ArticleCard article={article} compact />)}</div>
   </section>
-  <section class="monthly-link" aria-labelledby="monthly-link-heading"><p class="eyebrow">月刊</p><h2 id="monthly-link-heading">月間まとめ</h2><p>1か月のニュースを、総括とエッセイと物語で振り返ります。</p><a class="text-link" href={toUrl('monthly/')}>月刊号を見る →</a></section>
 </BaseLayout>
